@@ -14,15 +14,16 @@ notificationTime := 1 ; seconds the notifications stay
 n := new Notification("Starting led shortcuts!", 200,14, ,notificationTime)
 
 ; make the socket
-socket := new McLightingServer("ws://192.168.1.33:81") ; replace with the ip address of the mclighting controller
+socket := new McLightingServer("ws://192.168.178.64:81") ; replace with the ip address of the mclighting controller
 
 incrementAmount := 10 ; how finely you adjust the color, speed, and brightness per keypress
 maxColor := 255
 maxMode := 56 ; the maximum mode id number
 
-red := 127
-green := 127
-blue := 127
+red := 0
+green := 0
+blue := 0
+white := 127
 
 brightness := 127
 speed := 127
@@ -56,7 +57,7 @@ mode := 1
 	
 ^#Numpad0:: ; turn on to static color
 	setNotification("Leds are on")
-	cmd := "*"+toHexColor(red,green,blue) ; * is the set all command
+	cmd := "*"+toHexColor(red,green,blue,white) ; * is the set all command
 	sendCmd(cmd) ; = is the set control command
 	return
 	
@@ -107,7 +108,7 @@ mode := 1
 	if(red > maxColor)
 		red := maxColor
 	
-	cmd := "#"+toHexColor(red,green,blue) ; # is the set main color command
+	cmd := "#"+toHexColor(red,green,blue,white) ; # is the set main color command
 	; MsgBox %cmd%
 	setNotification("Red: " + red)
 	sendCmd(cmd)
@@ -119,7 +120,7 @@ mode := 1
 	if(red < 0)
 		red := 0
 	
-	cmd := "#"+toHexColor(red,green,blue) ; # is the set main color command
+	cmd := "#"+toHexColor(red,green,blue,white) ; # is the set main color command
 	; MsgBox %cmd%
 	setNotification("Red: " + red)
 	sendCmd(cmd)
@@ -131,7 +132,7 @@ mode := 1
 	if(green > maxColor)
 		green := maxColor
 	
-	cmd := "#"+toHexColor(red,green,blue) ; # is the set main color command
+	cmd := "#"+toHexColor(red,green,blue,white) ; # is the set main color command
 	; MsgBox %cmd%
 	setNotification("Green: " + green)
 	sendCmd(cmd)
@@ -143,7 +144,7 @@ mode := 1
 	if(green < 0)
 		green := 0
 	
-	cmd := "#"+toHexColor(red,green,blue) ; # is the set main color command
+	cmd := "#"+toHexColor(red,green,blue,white) ; # is the set main color command
 	; MsgBox %cmd%
 	setNotification("Green: " + green)
 	sendCmd(cmd)
@@ -155,7 +156,7 @@ mode := 1
 	if(blue > maxColor)
 		blue := maxColor
 	
-	cmd := "#"+toHexColor(red,green,blue) ; # is the set main color command
+	cmd := "#"+toHexColor(red,green,blue,white) ; # is the set main color command
 	; MsgBox %cmd%
 	setNotification("Blue: " + blue)
 	sendCmd(cmd)
@@ -167,9 +168,33 @@ mode := 1
 	if(blue < 0)
 		blue := 0
 	
-	cmd := "#"+toHexColor(red,green,blue) ; # is the set main color command
+	cmd := "#"+toHexColor(red,green,blue,white) ; # is the set main color command
 	; MsgBox %cmd%
 	setNotification("Blue: " + blue)
+	sendCmd(cmd)
+
+	return
+
+^#PgUp:: ; increase white amount
+	white := white + incrementAmount
+	if(white > maxColor)
+		white := maxColor
+	
+	cmd := "#"+toHexColor(red,green,blue,white) ; # is the set main color command
+	; MsgBox %cmd%
+	setNotification("white: " + white)
+	sendCmd(cmd)
+
+	return
+	
+^#PgDn:: ; decrease white amount
+	white := white - incrementAmount
+	if(white < 0)
+		white := 0
+	
+	cmd := "#"+toHexColor(red,green,blue,white) ; # is the set main color command
+	; MsgBox %cmd%
+	setNotification("white: " + white)
 	sendCmd(cmd)
 
 	return
@@ -189,13 +214,13 @@ sendCmd(cmd)
 	return
 }
 
-toHexColor(r, g, b)
+toHexColor(r, g, b, w)
 {
 	SetFormat, IntegerFast, hex ; To print values as hexadecimal
-	colorNum := r*65536 + g*256 + b
-	color = 000000%colorNum% ; convert to string and add preceeding zeros
+	colorNum :=w*16777216 + r*65536 + g*256 + b
+	color = 00000000%colorNum% ; convert to string and add preceeding zeros
 	color := StrReplace(color, "0x") ; replace the 0x from the middle
-	color := SubStr( color, -5 ) ; get last 6 characters
+	color := SubStr( color, -7 ) ; get last 6 characters
 	
 	SetFormat, IntegerFast, dec ; sets the print mode back to decimal
 	return ""+color ; 

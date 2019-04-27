@@ -43,3 +43,7 @@ ctrl+windows+numpad2 decrements the green component of the current color
 ctrl+windows+numpad9 increments the blue component of the current color
 
 ctrl+windows+numpad3 decrements the blue component of the current color
+
+ctrl+windows+PageUP increments the white component of the current color
+
+ctrl+windows+PageDOWN decrements the white component of the current color
